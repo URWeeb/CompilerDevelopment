@@ -65,7 +65,10 @@ RPOResult RPOCompute(llvm::Function& func) {
 }
 
 namespace {
-
+    /*
+     * Функция для вывода в RPO-порядке базовых блоков функции func
+     * и найденных обратных дуг в формате "BB<id> -> BB<id>"
+     */
     void VisitFunction(llvm::Function& func) {
         llvm::DenseMap<BlockNode, unsigned> basic_block_ids;
         unsigned following_id = 0;
@@ -95,8 +98,14 @@ namespace {
             }
         }
     }
-
+    
+    /*
+     * Структура, имплементирующая проход нового pass manager LLVM
+     */
     struct RPOPass : llvm::PassInfoMixin<RPOPass> {
+        /*
+         * Точка входа прохода для конкретной функции func.
+         */
         llvm::PreservedAnalyses run(llvm::Function& func, 
                                    llvm::FunctionAnalysisManager& a_manager) {
             if (func.isDeclaration()) {
@@ -107,12 +116,21 @@ namespace {
 
             return (llvm::PreservedAnalyses::all());
         }
-
+        
+        /*
+         * Метод, который требует запуск прохода
+         */
         static bool isRequired(void) {
             return true;
         }
     };
 
+    /*
+     * Функция, испольняющая callback парсера текстового пайплайна: 
+     * сопоставляет имя "rpo-pass" из "-passes=rpo-pass" с добавлением 
+     * RPOPass в fp_manager. Возвращает false для любых других имён, чтобы
+     * PassBuilder мог передать разбор дальше другим плагинам.
+     */
     bool CallBackForPipelineParser(
         llvm::StringRef name,
         llvm::FunctionPassManager& fp_manager,
@@ -124,11 +142,20 @@ namespace {
             return false;
         }
     }
-
+    
+    /*
+     * Функция регистрирует CallBackForPipelineParser в pass_builder — вызывается
+     * при инициализации PassBuilder внутри opt.
+     */
     void CallBackForPassBuilder(llvm::PassBuilder& pass_builder) {
         pass_builder.registerPipelineParsingCallback(&CallBackForPipelineParser);
     }
-
+    
+    /*
+     * Функция, которая собирает структуру PassPluginLibraryInfo 
+     * (версия API плагинов, имя, версия LLVM, callback регистрации),
+     * которую ожидает llvmGetPassPluginInfo().
+     */
     llvm::PassPluginLibraryInfo getRPOPassPluginInfo(void) {
         uint32_t APIversion = LLVM_PLUGIN_API_VERSION;
         const char* PluginName = "RPOPass";
