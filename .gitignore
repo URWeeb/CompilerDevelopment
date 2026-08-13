@@ -1,0 +1,10 @@
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+compile_commands.json
+*.so
+*.dylib
+unit_tests
+*.ll
+*.o
