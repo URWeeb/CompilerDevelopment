@@ -5,10 +5,10 @@
 #include "llvm/Plugins/PassPlugin.h"
 #include "llvm/Support/raw_ostream.h"
 
-std::map<std::string, unsigned> computeInstCounts(llvm::Function& func) {
+std::map<std::string, unsigned> ComputeInstCounts(llvm::Function& func) {
     std::map<std::string, unsigned> counts;
 
-    for (auto& basic_block : function) {
+    for (auto& basic_block : func) {
         for (auto& instruction : basic_block) {
             ++counts[std::string(instruction.getOpcodeName())];
         }
@@ -28,9 +28,9 @@ namespace {
         }
     }
 
-    struct InstCountPass :: llvm::PassInfoMixin<InstCountPass> {
-        llvm::PreserveAnalyses run(llvm::Function& func,
-                                   llvm::FunctionAnalysesManager& a_manager) {
+    struct InstCountPass : llvm::PassInfoMixin<InstCountPass> {
+        llvm::PreservedAnalyses run(llvm::Function& func,
+                                   llvm::FunctionAnalysisManager& a_manager) {
             if (func.isDeclaration()) {
                 return llvm::PreservedAnalyses::all();
             }
@@ -47,7 +47,7 @@ namespace {
     };
 
     bool CallBackForPipelineParser(
-                                    llvm::StringRef name.
+                                    llvm::StringRef name,
                                     llvm::FunctionPassManager& func_manager,
                                     llvm::ArrayRef<llvm::PassBuilder::PipelineElement>
                                    ) {

@@ -27,8 +27,8 @@ RPOResult RPOCompute(llvm::Function& func) {
     RPOResult result;
     
     llvm::SmallVector<StackEntry, 32> stack;
-    llvm::DenseSet<const BlockNode> visited;
-    llvm::DenseSet<const BlockNode> on_stack;
+    llvm::DenseSet<BlockNode> visited;
+    llvm::DenseSet<BlockNode> on_stack;
     llvm::SmallVector<BlockNode, 32> post_order;
 
     BlockNode entry = &func.getEntryBlock();
@@ -44,10 +44,10 @@ RPOResult RPOCompute(llvm::Function& func) {
             on_stack.erase(basic_block);
             stack.pop_back();
             
-            return;
+            continue;
         }
 
-        Node succ = *iter;
+        BlockNode succ = *iter;
         ++iter;
 
         if (!visited.count(succ)) {
@@ -67,7 +67,7 @@ RPOResult RPOCompute(llvm::Function& func) {
 namespace {
 
     void VisitFunction(llvm::Function& func) {
-        llvm::DenseMap<const BlockNode, unsigned> basic_block_ids;
+        llvm::DenseMap<BlockNode, unsigned> basic_block_ids;
         unsigned following_id = 0;
 
         for (auto& basic_block : func) {
@@ -97,8 +97,8 @@ namespace {
     }
 
     struct RPOPass : llvm::PassInfoMixin<RPOPass> {
-        llvm::PreserveAnalyses run(llvm::Function& func, 
-                                   llvmd::FunctionAnalysisManager& a_manager) {
+        llvm::PreservedAnalyses run(llvm::Function& func, 
+                                   llvm::FunctionAnalysisManager& a_manager) {
             if (func.isDeclaration()) {
                 return (llvm::PreservedAnalyses::all());
             }
@@ -151,6 +151,6 @@ namespace {
  * Интерфейс, что будет гарантировать распознавание прохода "opt"
  * "-passes=rpo-pass"
  */
-extern "C" LLVM_ATTRIBUTE_WEAK ::llvm::PassPluginLibraryInfo llvmGetPluginInfo() {
+extern "C" LLVM_ATTRIBUTE_WEAK ::llvm::PassPluginLibraryInfo llvmGetPassPluginInfo() {
     return getRPOPassPluginInfo();
 }
