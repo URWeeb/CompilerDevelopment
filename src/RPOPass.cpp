@@ -15,9 +15,12 @@
  * Набор алиасов, часть из которых взята из соответствующего header-файла
  * Нужны исключительно в качестве синтаксического сахара
  * (что в прочем очевидно :/)
+ *
+ * Из нового(чего не было RPOPass.h)
+ * StackEntry - пара из BlockNode и llvm::succ_iterator;
  */
 using BlockNode = llvm::BasicBlock*;
-using BlockEdge = std::pair<BlockNode, BlockNode>;
+using BackEdge = std::pair<BlockNode, BlockNode>;
 using StackEntry = std::pair<BlockNode, llvm::succ_iterator>;
 
 /*

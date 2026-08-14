@@ -11,19 +11,20 @@
  *
  * - Алиасы:
  * -- BlockNode - указатель на llvm::BasicBlock;
- * -- BlockEdge - std::pair двух BlockNode;
+ * -- BackEdge - std::pair двух BlockNode, будет использоваться для
+ *    хранения обратных дуг;
  *
  * - Поля
  * -- std::vector<BlockNode> rpo_order - вектор базовых блоков, расположенных в
  *    в порядке RPO;
- * -- std::vector<BlockEdge> back_edges - вектор найденных обратных дуг;
+ * -- std::vector<BackEdge> back_edges - вектор найденных обратных дуг;
  */
 struct RPOResult {
     using BlockNode = llvm::BasicBlock*;
-    using BlockEdge = std::pair<BlockNode, BlockNode>;
+    using BackEdge = std::pair<BlockNode, BlockNode>;
 
     std::vector<BlockNode> rpo_order;
-    std::vector<BlockEdge> back_edges;
+    std::vector<BackEdge> back_edges;
 };
 
 /*
